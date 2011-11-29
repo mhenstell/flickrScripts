@@ -16,32 +16,71 @@ except:
 	sys.exit(1)
 
 class InfoGetter(threading.Thread):
-	def __init__(self, id):
-		print "Init " + str(id)
-		self.id = id
+	
+	def __init__(self, picID):
+		self.picID = picID
+		self.result = False
 		threading.Thread.__init__(self)
+	
+	def run(self):
+		exists = r.exists(self.picID + ":info")
+		if (exists):
+			r.srem("infoQueue", self.picID)
+			self.result = True
+			return
+		
+		try:
+			exif = flickr.photos_getExif(photo_id=self.picID, format="json").replace("jsonFlickrApi(", "")[0:-1]
+			info = flickr.photos_getInfo(photo_id=self.picID, format="json").replace("jsonFlickrApi(", "")[0:-1]
+		
+		except:
+			self.result = False
+			return
+			
+		r.set(self.picID + ":info", info)
+		r.set(self.picID + ":exif", exif)
+	
+		r.srem("infoQueue", self.picID)
+			
+		self.result = True
+		
+	def get_result(self):
+		return self.result
 
 def _populateData():
 	
-	def getter(q, ids):
+	def producer(q, ids):
+		counter = 1
 		for pic in infoQueue:
-			thread = InfoGetter(id)
+			print "Retriving Data for Picture %s / %s" % (counter, len(infoQueue))
+			thread = InfoGetter(pic)
 			thread.start()
 			q.put(thread, True)
+			counter += 1
 	
+	finished = []
+	
+	def consumer(q, total_ids):
+		while len(finished) < total_ids:
+			thread = q.get(True)
+			thread.join()
+			
+			result = thread.get_result()
+			if result: finished.append(result)
+			
 	infoQueue = r.smembers("infoQueue")
 	
-	q = Queue(3)
+	q = Queue(8)
 	
-	threads = threading.Thread(target=getter, args=(q, infoQueue))
-	threads.start()
-	threads.join()
+	prod_thread = threading.Thread(target=producer, args=(q, infoQueue))
+	cons_thread = threading.Thread(target=consumer, args=(q, len(infoQueue)))
+	
+	prod_thread.start()
+	cons_thread.start()
+	prod_thread.join()
+	cons_thread.join()
 
 def _searchFlickr(mindate, maxdate, woe_id):
-	
-	#for photo in flickr.walk(min_taken_date=minDate, max_taken_date=maxDate, has_geo=True, woe_id=woe_id):
-	#search = flickr.photos_search(api_key=flickrcredentials.api_key, min_taken_date=mindate, max_taken_date=maxdate, has_geo=True, woe_id=woe_id, format='json').replace("jsonFlickrApi(", "")[0:-1]
-	#search = json.loads(search)
 	
 	currentPage = 1
 	totalPages = 0
@@ -64,7 +103,6 @@ def _searchFlickr(mindate, maxdate, woe_id):
 		if currentPage > totalPages: break
 
 		time.sleep(1)
-		
 
 if __name__ == "__main__":
 	
