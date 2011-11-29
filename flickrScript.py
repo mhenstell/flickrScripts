@@ -15,7 +15,7 @@ except:
 	"Could not find flickr credentials file"
 	sys.exit(1)
 
-class InfoGetter(threading.Thread): #Class 
+class InfoGetter(threading.Thread):
 	
 	def __init__(self, picID):
 		self.picID = picID
@@ -47,7 +47,7 @@ class InfoGetter(threading.Thread): #Class
 	def get_result(self):
 		return self.result
 
-def _populateData(): #Uses a series of threads to query Flickr to populate redis with EXIF data
+def _populateData():
 	
 	def producer(q, ids):
 		counter = 1
@@ -69,9 +69,6 @@ def _populateData(): #Uses a series of threads to query Flickr to populate redis
 			if result: finished.append(result)
 			
 	infoQueue = r.smembers("infoQueue")
-	if len(infoQueue) == 0:
-		print "No pictures queued for data population"
-		return
 	
 	q = Queue(8)
 	
@@ -107,42 +104,6 @@ def _searchFlickr(mindate, maxdate, woe_id):
 
 		time.sleep(1)
 
-def _dateTabulator():
-	
-	print "Flushing dateTaken keys"
-	keys = r.keys("dateTaken:*")
-	for key in keys:
-		r.delete(key)
-	
-	print "Retabulating dateTaken keys"
-	ids = r.smembers("picSet")
-	counter = 0
-	
-	for id in ids:
-		counter += 1
-		if counter % 100 == 0:
-			print "Tabulating date data for picture %s/%s" % (counter, len(ids))
-			
-		info = r.get(id + ":info")
-		exif = r.get(id + ":exif")
-		
-		if info is None or exif is None: continue
-		
-		info = json.loads(info)
-		exif = json.loads(exif)
-		
-		try:
-			dateTakenInfo = info["photo"]["dates"]["taken"]
-		except:
-			print "Error getting info: " + str(info)
-			continue
-		
-		dateTaken = dateTakenInfo.split(" ")[0]
-		num = r.incr("dateTaken:" + dateTaken)
-		
-		r.set(id + ":dateTimeTaken", dateTakenInfo)
-		r.sadd("dateTakenIDs:" + dateTaken, id)
-
 if __name__ == "__main__":
 	
 	parser = optparse.OptionParser()
@@ -157,6 +118,4 @@ if __name__ == "__main__":
 	r = redis.StrictRedis(host='localhost', port=6379, db=0)
 	
 	#_searchFlickr(options.min, options.max, options.woe)
-	#_populateData()
-	_dateTabulator()
-	
+	_populateData()
