@@ -143,6 +143,15 @@ def _dateTabulator():
 		r.set(id + ":dateTimeTaken", dateTakenInfo)
 		r.sadd("dateTakenIDs:" + dateTaken, id)
 
+def _redisDateSorter():
+	print "Flushing sortedIDSbyDate keys"
+	
+	delKeys = r.keys("sortedIDSbyDate:*")
+	for key in delKeys:
+		r.delete(key)
+	
+	
+		
 if __name__ == "__main__":
 	
 	parser = optparse.OptionParser()
@@ -158,5 +167,4 @@ if __name__ == "__main__":
 	
 	#_searchFlickr(options.min, options.max, options.woe)
 	#_populateData()
-	_dateTabulator()
-	
+	#_dateTabulator()
