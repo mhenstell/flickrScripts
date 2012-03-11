@@ -4,6 +4,7 @@ from multiprocessing import Pool
 import os
 import flickrapi
 import time
+import calendar
 
 def retrieveDataForID(id):
 
@@ -18,6 +19,16 @@ def retrieveDataForID(id):
 
 	today = time.strftime("%Y-%m-%d", time.localtime())
 	redisInstance.hmset("picturedata:%s" % today, {id + ":info": info, id + ":exif": exif})
+
+	info = json.loads(info)
+
+	try:
+		dateTakenInfo = info["photo"]["dates"]["taken"]
+	except:
+		print "Error getting date taken info for %s" % id
+		return
+
+	redisInstance.zadd("picturesbytimestamp:%s" % today, calendar.timegm(time.strptime(dateTakenInfo, "%Y-%m-%d %H:%M:%S")), id)
 
 class FlickrDataDownloader:
 
