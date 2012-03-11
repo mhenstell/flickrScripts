@@ -1,39 +1,40 @@
 import flickrapi
 import redis
 import sys
+import json
 
 
 class FlickrSearch:
 	
-	def __init__(self, minDate, maxDate, woe_id, redisInstance, flickrCredentials):
+	def __init__(self, minDate, maxDate, woe_id, flickrInstance, redisInstance):
 		self.minDate = minDate
 		self.maxDate = maxDate
 		self.woe_id = woe_id
 		self.redisInstance = redisInstance
+		self.flickrInstance = flickrInstance
 
 	def run(self):
 
 		print "Performing Flickr search for photos in woe_id %s between %s and %s" % (self.woe_id, self.minDate, self.maxDate)
-
-		flickr = flickrapi.FlickrAPI(api_key, api_secret)
 
 		currentPage = 1
 		totalPages = 0
 	
 		while True:
 
-			print "\tPopulating Page %s of %s" % (currentPage, totalPages)
-			search = flickr.photos_search(api_key=flickrCredentials['key'], min_taken_date=self.minDate, max_taken_date=self.maxDate, has_geo=True, woe_id=self.woe_id, page=currentPage - 1, format='json').replace("jsonFlickrApi(", "")[0:-1]
+			search = self.flickrInstance.photos_search(min_taken_date=self.minDate, max_taken_date=self.maxDate, has_geo=True, woe_id=self.woe_id, page=currentPage - 1, format='json').replace("jsonFlickrApi(", "")[0:-1]
 			search = json.loads(search)
 			
 			totalPages = search["photos"]["pages"]
 			photos = search["photos"]["photo"]
+
+			print "\tPopulating Page %s of %s" % (currentPage, totalPages)
 			
 			for photo in photos:
 				id = photo["id"]
 				
 				#Add photo to master picture set
-				redisInstance.sadd("picSet", id)
+				self.redisInstance.sadd("picset", id)
 
 			currentPage += 1
 			if currentPage > totalPages: break
