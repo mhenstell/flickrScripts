@@ -1,0 +1,8 @@
+http://buildinternet.com/project/supersized/
+http://www.ajaxblender.com/bgstretcher-2-jquery-stretch-background-plugin-updated.html
+https://github.com/gre/slider.js
+http://projects.craftedpixelz.co.uk/craftyslide/
+https://github.com/rpflorence/jquery-rf-slideshow
+https://github.com/reallysimple/Really-Simple-Slideshow
+http://slidesjs.com/
+http://www.scriptiny.com/2008/12/javascript-slideshow/
