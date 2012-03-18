@@ -40,6 +40,7 @@
             base.options = $.supersized.vars.options;
             
             base._build();
+
         };
         
         
@@ -48,65 +49,28 @@
         base._build = function(){
         	// Add in slide markers
         	var thisSlide = 0,
-        		slideSet = '',
+        		//slideSet = '',
+        		slideSet = new Array(),
 				markers = '',
 				markerContent,
 				thumbMarkers = '',
 				thumbImage;
-				
-			while(thisSlide <= base.options.slides.length-1){
-				//Determine slide link content
-				switch(base.options.slide_links){
-					case 'num':
-						markerContent = thisSlide;
-						break;
-					case 'name':
-						markerContent = base.options.slides[thisSlide].title;
-						break;
-					case 'blank':
-						markerContent = '';
-						break;
-				}
-				
-				slideSet = slideSet+'<li class="slide-'+thisSlide+'"></li>';
-				
-				if(thisSlide == base.options.start_slide-1){
-					// Slide links
-					if (base.options.slide_links)markers = markers+'<li class="slide-link-'+thisSlide+' current-slide"><a>'+markerContent+'</a></li>';
-					// Slide Thumbnail Links
-					if (base.options.thumb_links){
-						base.options.slides[thisSlide].thumb ? thumbImage = base.options.slides[thisSlide].thumb : thumbImage = base.options.slides[thisSlide].image;
-						thumbMarkers = thumbMarkers+'<li class="thumb'+thisSlide+' current-thumb"><img src="'+thumbImage+'"/></li>';
-					};
-				}else{
-					// Slide links
-					if (base.options.slide_links) markers = markers+'<li class="slide-link-'+thisSlide+'" ><a>'+markerContent+'</a></li>';
-					// Slide Thumbnail Links
-					if (base.options.thumb_links){
-						base.options.slides[thisSlide].thumb ? thumbImage = base.options.slides[thisSlide].thumb : thumbImage = base.options.slides[thisSlide].image;
-						thumbMarkers = thumbMarkers+'<li class="thumb'+thisSlide+'"><img src="'+thumbImage+'"/></li>';
-					};
-				}
-				thisSlide++;
+			
+			for (x=0;x < 21; x++) {
+				$(base.el).append('<li class="slide-'+x+'"></li>');
 			}
 			
-			if (base.options.slide_links) $(vars.slide_list).html(markers);
-			if (base.options.thumb_links && vars.thumb_tray.length){
-				$(vars.thumb_tray).append('<ul id="'+vars.thumb_list.replace('#','')+'">'+thumbMarkers+'</ul>');
-			}
-			
-			$(base.el).append(slideSet);
 			
 			// Add in thumbnails
-			if (base.options.thumbnail_navigation){
-				// Load previous thumbnail
-				vars.current_slide - 1 < 0  ? prevThumb = base.options.slides.length - 1 : prevThumb = vars.current_slide - 1;
-				$(vars.prev_thumb).show().html($("<img/>").attr("src", base.options.slides[prevThumb].image));
+			// if (base.options.thumbnail_navigation){
+			// 	// Load previous thumbnail
+			// 	vars.current_slide - 1 < 0  ? prevThumb = base.options.slides.length - 1 : prevThumb = vars.current_slide - 1;
+			// 	$(vars.prev_thumb).show().html($("<img/>").attr("src", base.options.slides[prevThumb].image));
 				
-				// Load next thumbnail
-				vars.current_slide == base.options.slides.length - 1 ? nextThumb = 0 : nextThumb = vars.current_slide + 1;
-				$(vars.next_thumb).show().html($("<img/>").attr("src", base.options.slides[nextThumb].image));
-			}
+			// 	// Load next thumbnail
+			// 	vars.current_slide == base.options.slides.length - 1 ? nextThumb = 0 : nextThumb = vars.current_slide + 1;
+			// 	$(vars.next_thumb).show().html($("<img/>").attr("src", base.options.slides[nextThumb].image));
+			// }
 			
             base._start(); // Get things started
         };
@@ -117,51 +81,37 @@
     	base._start = function(){
 			
 			// Determine if starting slide random
-			if (base.options.start_slide){
-				vars.current_slide = base.options.start_slide - 1;
-			}else{
-				vars.current_slide = Math.floor(Math.random()*base.options.slides.length);	// Generate random slide number
-			}
+			vars.current_slide = base.options.start_slide - 1;
+	
 			
 			// If links should open in new window
 			var linkTarget = base.options.new_window ? ' target="_blank"' : '';
-			
-			// Set slideshow quality (Supported only in FF and IE, no Webkit)
-			if (base.options.performance == 3){
-				base.$el.addClass('speed'); 		// Faster transitions
-			} else if ((base.options.performance == 1) || (base.options.performance == 2)){
-				base.$el.addClass('quality');	// Higher image quality
-			}
+		
 						
 			// Shuffle slide order if needed		
-			if (base.options.random){
-				arr = base.options.slides;
-				for(var j, x, i = arr.length; i; j = parseInt(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x);	// Fisher-Yates shuffle algorithm (jsfromhell.com/array/shuffle)
-			    base.options.slides = arr;
-			}
+			//if (base.options.random){
+			//	arr = base.options.slides;
+			//	for(var j, x, i = arr.length; i; j = parseInt(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x);	// Fisher-Yates shuffle algorithm (jsfromhell.com/array/shuffle)
+			//    base.options.slides = arr;
+			//}
 			
 			/*-----Load initial set of images-----*/
-	
-			if (base.options.slides.length > 1){
-				if(base.options.slides.length > 2){
-					// Set previous image
-					vars.current_slide - 1 < 0  ? loadPrev = base.options.slides.length - 1 : loadPrev = vars.current_slide - 1;	// If slide is 1, load last slide as previous
-					var imageLink = (base.options.slides[loadPrev].url) ? "href='" + base.options.slides[loadPrev].url + "'" : "";
+			// Set previous image
+			vars.current_slide - 1 < 0  ? loadPrev = base.options.slides.length - 1 : loadPrev = vars.current_slide - 1;	// If slide is 1, load last slide as previous
+			var imageLink = (base.options.slides[loadPrev].url) ? "href='" + base.options.slides[loadPrev].url + "'" : "";
+		
+			var imgPrev = $('<img src="'+base.options.slides[loadPrev].image+'"/>');
+			var slidePrev = base.el+' li:eq('+loadPrev+')';
+			imgPrev.appendTo(slidePrev).wrap('<a ' + imageLink + linkTarget + '></a>').parent().parent().addClass('image-loading prevslide');
+		
+			imgPrev.load(function(){
+				$(this).data('origWidth', $(this).width()).data('origHeight', $(this).height());
+				base.resizeNow();	// Resize background image
+			});	// End Load
 				
-					var imgPrev = $('<img src="'+base.options.slides[loadPrev].image+'"/>');
-					var slidePrev = base.el+' li:eq('+loadPrev+')';
-					imgPrev.appendTo(slidePrev).wrap('<a ' + imageLink + linkTarget + '></a>').parent().parent().addClass('image-loading prevslide');
-				
-					imgPrev.load(function(){
-						$(this).data('origWidth', $(this).width()).data('origHeight', $(this).height());
-						base.resizeNow();	// Resize background image
-					});	// End Load
-				}
-			} else {
-				// Slideshow turned off if there is only one slide
-				base.options.slideshow = 0;
-			}
 			
+
+
 			// Set current image
 			imageLink = (api.getField('url')) ? "href='" + api.getField('url') + "'" : "";
 			var img = $('<img src="'+api.getField('image')+'"/>');
@@ -176,20 +126,21 @@
 				if( typeof theme != 'undefined' && typeof theme._init == "function" ) theme._init();	// Load Theme
 			});
 			
-			if (base.options.slides.length > 1){
-				// Set next image
-				vars.current_slide == base.options.slides.length - 1 ? loadNext = 0 : loadNext = vars.current_slide + 1;	// If slide is last, load first slide as next
-				imageLink = (base.options.slides[loadNext].url) ? "href='" + base.options.slides[loadNext].url + "'" : "";
-				
-				var imgNext = $('<img src="'+base.options.slides[loadNext].image+'"/>');
-				var slideNext = base.el+' li:eq('+loadNext+')';
-				imgNext.appendTo(slideNext).wrap('<a ' + imageLink + linkTarget + '></a>').parent().parent().addClass('image-loading');
-				
-				imgNext.load(function(){
-					$(this).data('origWidth', $(this).width()).data('origHeight', $(this).height());
-					base.resizeNow();	// Resize background image
-				});	// End Load
-			}
+
+
+			// Set next image
+			vars.current_slide == base.options.slides.length - 1 ? loadNext = 0 : loadNext = vars.current_slide + 1;	// If slide is last, load first slide as next
+			imageLink = (base.options.slides[loadNext].url) ? "href='" + base.options.slides[loadNext].url + "'" : "";
+			
+			var imgNext = $('<img src="'+base.options.slides[loadNext].image+'"/>');
+			var slideNext = base.el+' li:eq('+loadNext+')';
+			imgNext.appendTo(slideNext).wrap('<a ' + imageLink + linkTarget + '></a>').parent().parent().addClass('image-loading');
+			
+			imgNext.load(function(){
+				$(this).data('origWidth', $(this).width()).data('origHeight', $(this).height());
+				base.resizeNow();	// Resize background image
+			});	// End Load
+			
 			/*-----End load initial images-----*/
 			
 			//  Hide elements to be faded in
@@ -252,31 +203,31 @@
 			   	});
 			}
 			
-			if (base.options.slide_links){
-				// Slide marker clicked
-				$(vars.slide_list+'> li').click(function(){
+			// if (base.options.slide_links){
+			// 	// Slide marker clicked
+			// 	$(vars.slide_list+'> li').click(function(){
 				
-					index = $(vars.slide_list+'> li').index(this);
-					targetSlide = index + 1;
+			// 		index = $(vars.slide_list+'> li').index(this);
+			// 		targetSlide = index + 1;
 					
-					base.goTo(targetSlide);
-					return false;
+			// 		base.goTo(targetSlide);
+			// 		return false;
 					
-				});
-			}
+			// 	});
+			// }
 			
-			// Thumb marker clicked
-			if (base.options.thumb_links){
-				$(vars.thumb_list+'> li').click(function(){
+			// // Thumb marker clicked
+			// if (base.options.thumb_links){
+			// 	$(vars.thumb_list+'> li').click(function(){
 				
-					index = $(vars.thumb_list+'> li').index(this);
-					targetSlide = index + 1;
+			// 		index = $(vars.thumb_list+'> li').index(this);
+			// 		targetSlide = index + 1;
 					
-					api.goTo(targetSlide);
-					return false;
+			// 		api.goTo(targetSlide);
+			// 		return false;
 					
-				});
-			}
+			// 	});
+			// }
 			
 			// Start slideshow if enabled
 			if (base.options.slideshow && base.options.slides.length > 1){
@@ -471,13 +422,19 @@
 					
 			// Get the slide number of new slide
 			vars.current_slide + 1 == base.options.slides.length ? vars.current_slide = 0 : vars.current_slide++;
-			
-		    var nextslide = $(base.el+' li:eq('+vars.current_slide+')'),
+
+			console.log("Current slide: " + vars.current_slide)
+
+			if (base.$el.find('.slide-' + (vars.current_slide + 20)).length < 1) {
+				$(base.el).append('<li class="slide-'+(vars.current_slide + 20)+'"></li>');
+				console.log("Adding " + (vars.current_slide + 20))
+			}			
+
+		    var nextslide = base.$el.find('.slide-' + vars.current_slide);
 		    	prevslide = base.$el.find('.prevslide');
 			
 			// If hybrid mode is on drop quality for transition
 			if (base.options.performance == 1) base.$el.removeClass('quality').addClass('speed');	
-			
 			
 			/*-----Load Image-----*/
 			
@@ -485,7 +442,8 @@
 
 			vars.current_slide == base.options.slides.length - 1 ? loadSlide = 0 : loadSlide = vars.current_slide + 1;	// Determine next slide
 
-			var targetList = base.el+' li:eq('+loadSlide+')';
+			var targetList = base.$el.find('.slide-' + loadSlide);
+			
 			if (!$(targetList).html()){
 				
 				// If links should open in new window
@@ -501,33 +459,19 @@
 					base.resizeNow();
 				});	// End Load
 			};
-						
-			// Update thumbnails (if enabled)
-			if (base.options.thumbnail_navigation == 1){
 			
-				// Load previous thumbnail
-				vars.current_slide - 1 < 0  ? prevThumb = base.options.slides.length - 1 : prevThumb = vars.current_slide - 1;
-				$(vars.prev_thumb).html($("<img/>").attr("src", base.options.slides[prevThumb].image));
-			
-				// Load next thumbnail
-				nextThumb = loadSlide;
-				$(vars.next_thumb).html($("<img/>").attr("src", base.options.slides[nextThumb].image));
-				
+
+			oldslide = base.$el.find('.slide-' + (vars.current_slide - 10))
+			if (oldslide.length > 0) {
+				console.log("Removing " + (vars.current_slide - 10));
+				oldslide.remove();
 			}
-			
-			
-			
+
 			/*-----End Load Image-----*/
 			
 			
 			// Call theme function for before slide transition
 			if( typeof theme != 'undefined' && typeof theme.beforeAnimation == "function" ) theme.beforeAnimation('next');
-			
-			//Update slide markers
-			if (base.options.slide_links){
-				$('.current-slide').removeClass('current-slide');
-				$(vars.slide_list +'> li' ).eq(vars.current_slide).addClass('current-slide');
-			}
 		    
 		    nextslide.css('visibility','hidden').addClass('activeslide');	// Update active slide
 		    
@@ -538,26 +482,6 @@
 	    		case 1: case 'fade':	// Fade
 	    		    nextslide.animate({opacity : 0},0).css('visibility','visible').animate({opacity : 1, avoidTransforms : false}, base.options.transition_speed, function(){ base.afterAnimation(); });
 	    		    break;
-	    		case 2: case 'slideTop':	// Slide Top
-	    		    nextslide.animate({top : -base.$el.height()}, 0 ).css('visibility','visible').animate({ top:0, avoidTransforms : false }, base.options.transition_speed, function(){ base.afterAnimation(); });
-	    		    break;
-	    		case 3: case 'slideRight':	// Slide Right
-	    			nextslide.animate({left : base.$el.width()}, 0 ).css('visibility','visible').animate({ left:0, avoidTransforms : false }, base.options.transition_speed, function(){ base.afterAnimation(); });
-	    			break;
-	    		case 4: case 'slideBottom': // Slide Bottom
-	    			nextslide.animate({top : base.$el.height()}, 0 ).css('visibility','visible').animate({ top:0, avoidTransforms : false }, base.options.transition_speed, function(){ base.afterAnimation(); });
-	    			break;
-	    		case 5: case 'slideLeft':  // Slide Left
-	    			nextslide.animate({left : -base.$el.width()}, 0 ).css('visibility','visible').animate({ left:0, avoidTransforms : false }, base.options.transition_speed, function(){ base.afterAnimation(); });
-	    			break;
-	    		case 6: case 'carouselRight':	// Carousel Right
-	    			nextslide.animate({left : base.$el.width()}, 0 ).css('visibility','visible').animate({ left:0, avoidTransforms : false }, base.options.transition_speed, function(){ base.afterAnimation(); });
-					liveslide.animate({ left: -base.$el.width(), avoidTransforms : false }, base.options.transition_speed );
-	    			break;
-	    		case 7: case 'carouselLeft':   // Carousel Left
-	    			nextslide.animate({left : -base.$el.width()}, 0 ).css('visibility','visible').animate({ left:0, avoidTransforms : false }, base.options.transition_speed, function(){ base.afterAnimation(); });
-					liveslide.animate({ left: base.$el.width(), avoidTransforms : false }, base.options.transition_speed );
-	    			break;
 	    	}
 		    return false;	
 		};
@@ -579,8 +503,19 @@
 			
 			// Get current slide number
 			vars.current_slide == 0 ?  vars.current_slide = base.options.slides.length - 1 : vars.current_slide-- ;
+			
+			console.log("Current slide: " + vars.current_slide)
+
+			if (base.$el.find('.slide-' + (vars.current_slide - 9)).length < 1) {
+				if (vars.current_slide > 9) {
+					$(base.el).append('<li class="slide-'+(vars.current_slide - 9)+'"></li>');
+					console.log("Adding " + (vars.current_slide - 9));
+				};
 				
-		    var nextslide =  $(base.el+' li:eq('+vars.current_slide+')'),
+			};
+
+		    //var nextslide =  $(base.el+' li:eq('+vars.current_slide+')'),
+		    var nextslide = base.$el.find('.slide-' + vars.current_slide);
 		    	prevslide =  base.$el.find('.prevslide');
 			
 			// If hybrid mode is on drop quality for transition
@@ -591,7 +526,7 @@
 			
 			loadSlide = vars.current_slide;
 			
-			var targetList = base.el+' li:eq('+loadSlide+')';
+			var targetList = base.$el.find('.slide-' + loadSlide);
 			if (!$(targetList).html()){
 				// If links should open in new window
 				var linkTarget = base.options.new_window ? ' target="_blank"' : '';
@@ -606,18 +541,24 @@
 				});	// End Load
 			};
 			
-			// Update thumbnails (if enabled)
-			if (base.options.thumbnail_navigation == 1){
-			
-				// Load previous thumbnail
-				//prevThumb = loadSlide;
-				loadSlide == 0 ? prevThumb = base.options.slides.length - 1 : prevThumb = loadSlide - 1;
-				$(vars.prev_thumb).html($("<img/>").attr("src", base.options.slides[prevThumb].image));
-				
-				// Load next thumbnail
-				vars.current_slide == base.options.slides.length - 1 ? nextThumb = 0 : nextThumb = vars.current_slide + 1;
-				$(vars.next_thumb).html($("<img/>").attr("src", base.options.slides[nextThumb].image));
+			oldslide = base.$el.find('.slide-' + (vars.current_slide + 20))
+			if (oldslide.length > 0) {
+				console.log("Removing " + (vars.current_slide + 20));
+				oldslide.remove();
 			}
+
+			// Update thumbnails (if enabled)
+			// if (base.options.thumbnail_navigation == 1){
+			
+			// 	// Load previous thumbnail
+			// 	//prevThumb = loadSlide;
+			// 	loadSlide == 0 ? prevThumb = base.options.slides.length - 1 : prevThumb = loadSlide - 1;
+			// 	$(vars.prev_thumb).html($("<img/>").attr("src", base.options.slides[prevThumb].image));
+				
+			// 	// Load next thumbnail
+			// 	vars.current_slide == base.options.slides.length - 1 ? nextThumb = 0 : nextThumb = vars.current_slide + 1;
+			// 	$(vars.next_thumb).html($("<img/>").attr("src", base.options.slides[nextThumb].image));
+			// }
 			
 			/*-----End Load Image-----*/
 			
@@ -625,11 +566,11 @@
 			// Call theme function for before slide transition
 			if( typeof theme != 'undefined' && typeof theme.beforeAnimation == "function" ) theme.beforeAnimation('prev');
 			
-			//Update slide markers
-			if (base.options.slide_links){
-				$('.current-slide').removeClass('current-slide');
-				$(vars.slide_list +'> li' ).eq(vars.current_slide).addClass('current-slide');
-			}
+			// //Update slide markers
+			// if (base.options.slide_links){
+			// 	$('.current-slide').removeClass('current-slide');
+			// 	$(vars.slide_list +'> li' ).eq(vars.current_slide).addClass('current-slide');
+			// }
 			
 		    nextslide.css('visibility','hidden').addClass('activeslide');	// Update active slide
 		    
@@ -640,26 +581,6 @@
 	    		case 1: case 'fade':	// Fade
 	    		  	nextslide.animate({opacity : 0},0).css('visibility','visible').animate({opacity : 1, avoidTransforms : false}, base.options.transition_speed, function(){ base.afterAnimation(); });
 	    		    break;
-	    		case 2: case 'slideTop':	// Slide Top (reverse)
-	    		    nextslide.animate({top : base.$el.height()}, 0 ).css('visibility','visible').animate({ top:0, avoidTransforms : false }, base.options.transition_speed, function(){ base.afterAnimation(); });
-	    		    break;
-	    		case 3: case 'slideRight':	// Slide Right (reverse)
-	    			nextslide.animate({left : -base.$el.width()}, 0 ).css('visibility','visible').animate({ left:0, avoidTransforms : false }, base.options.transition_speed, function(){ base.afterAnimation(); });
-	    			break;
-	    		case 4: case 'slideBottom': // Slide Bottom (reverse)
-	    			nextslide.animate({top : -base.$el.height()}, 0 ).css('visibility','visible').animate({ top:0, avoidTransforms : false }, base.options.transition_speed, function(){ base.afterAnimation(); });
-	    			break;
-	    		case 5: case 'slideLeft':  // Slide Left (reverse)
-	    			nextslide.animate({left : base.$el.width()}, 0 ).css('visibility','visible').animate({ left:0, avoidTransforms : false }, base.options.transition_speed, function(){ base.afterAnimation(); });
-	    			break;
-	    		case 6: case 'carouselRight':	// Carousel Right (reverse)
-	    			nextslide.animate({left : -base.$el.width()}, 0 ).css('visibility','visible').animate({ left:0, avoidTransforms : false }, base.options.transition_speed, function(){ base.afterAnimation(); });
-					liveslide.animate({left : 0}, 0 ).animate({ left: base.$el.width(), avoidTransforms : false}, base.options.transition_speed );
-	    			break;
-	    		case 7: case 'carouselLeft':   // Carousel Left (reverse)
-	    			nextslide.animate({left : base.$el.width()}, 0 ).css('visibility','visible').animate({ left:0, avoidTransforms : false }, base.options.transition_speed, function(){ base.afterAnimation(); });
-					liveslide.animate({left : 0}, 0 ).animate({ left: -base.$el.width(), avoidTransforms : false }, base.options.transition_speed );
-	    			break;
 	    	}
 		    return false;	
 		};
@@ -700,61 +621,61 @@
     	
     	/* Go to specific slide
 		----------------------------*/
-    	base.goTo = function(targetSlide){
-			if (vars.in_animation || !api.options.slideshow) return false;		// Abort if currently animating
+  //   	base.goTo = function(targetSlide){
+		// 	if (vars.in_animation || !api.options.slideshow) return false;		// Abort if currently animating
 			
-			var totalSlides = base.options.slides.length;
+		// 	var totalSlides = base.options.slides.length;
 			
-			// If target outside range
-			if(targetSlide < 0){
-				targetSlide = totalSlides;
-			}else if(targetSlide > totalSlides){
-				targetSlide = 1;
-			}
-			targetSlide = totalSlides - targetSlide + 1;
+		// 	// If target outside range
+		// 	if(targetSlide < 0){
+		// 		targetSlide = totalSlides;
+		// 	}else if(targetSlide > totalSlides){
+		// 		targetSlide = 1;
+		// 	}
+		// 	targetSlide = totalSlides - targetSlide + 1;
 			
-			clearInterval(vars.slideshow_interval);	// Stop slideshow, prevent buildup
+		// 	clearInterval(vars.slideshow_interval);	// Stop slideshow, prevent buildup
 			
-			// Call theme function for goTo trigger
-			if (typeof theme != 'undefined' && typeof theme.goTo == "function" ) theme.goTo();
+		// 	// Call theme function for goTo trigger
+		// 	if (typeof theme != 'undefined' && typeof theme.goTo == "function" ) theme.goTo();
 			
-			if (vars.current_slide == totalSlides - targetSlide){
-				if(!(vars.is_paused)){
-					vars.slideshow_interval = setInterval(base.nextSlide, base.options.slide_interval);
-				} 
-				return false;
-			}
+		// 	if (vars.current_slide == totalSlides - targetSlide){
+		// 		if(!(vars.is_paused)){
+		// 			vars.slideshow_interval = setInterval(base.nextSlide, base.options.slide_interval);
+		// 		} 
+		// 		return false;
+		// 	}
 			
-			// If ahead of current position
-			if(totalSlides - targetSlide > vars.current_slide ){
+		// 	// If ahead of current position
+		// 	if(totalSlides - targetSlide > vars.current_slide ){
 				
-				// Adjust for new next slide
-				vars.current_slide = totalSlides-targetSlide-1;
-				vars.update_images = 'next';
-				base._placeSlide(vars.update_images);
+		// 		// Adjust for new next slide
+		// 		vars.current_slide = totalSlides-targetSlide-1;
+		// 		vars.update_images = 'next';
+		// 		base._placeSlide(vars.update_images);
 				
-			//Otherwise it's before current position
-			}else if(totalSlides - targetSlide < vars.current_slide){
+		// 	//Otherwise it's before current position
+		// 	}else if(totalSlides - targetSlide < vars.current_slide){
 				
-				// Adjust for new prev slide
-				vars.current_slide = totalSlides-targetSlide+1;
-				vars.update_images = 'prev';
-			    base._placeSlide(vars.update_images);
+		// 		// Adjust for new prev slide
+		// 		vars.current_slide = totalSlides-targetSlide+1;
+		// 		vars.update_images = 'prev';
+		// 	    base._placeSlide(vars.update_images);
 			    
-			}
+		// 	}
 			
-			// set active markers
-			if (base.options.slide_links){
-				$(vars.slide_list +'> .current-slide').removeClass('current-slide');
-				$(vars.slide_list +'> li').eq((totalSlides-targetSlide)).addClass('current-slide');
-			}
+		// 	// set active markers
+		// 	if (base.options.slide_links){
+		// 		$(vars.slide_list +'> .current-slide').removeClass('current-slide');
+		// 		$(vars.slide_list +'> li').eq((totalSlides-targetSlide)).addClass('current-slide');
+		// 	}
 			
-			if (base.options.thumb_links){
-				$(vars.thumb_list +'> .current-thumb').removeClass('current-thumb');
-				$(vars.thumb_list +'> li').eq((totalSlides-targetSlide)).addClass('current-thumb');
-			}
+		// 	if (base.options.thumb_links){
+		// 		$(vars.thumb_list +'> .current-thumb').removeClass('current-thumb');
+		// 		$(vars.thumb_list +'> li').eq((totalSlides-targetSlide)).addClass('current-thumb');
+		// 	}
 			
-		};
+		// };
         
         
         /* Place Slide
@@ -770,7 +691,8 @@
 				
 				vars.current_slide == base.options.slides.length - 1 ? loadSlide = 0 : loadSlide = vars.current_slide + 1;	// Determine next slide
 				
-				var targetList = base.el+' li:eq('+loadSlide+')';
+				//var targetList = base.el+' li:eq('+loadSlide+')';
+				var targetList = base.$el.find('.slide-' + loadSlide);
 				
 				if (!$(targetList).html()){
 					// If links should open in new window
@@ -793,7 +715,8 @@
 			
 				vars.current_slide - 1 < 0  ? loadSlide = base.options.slides.length - 1 : loadSlide = vars.current_slide - 1;	// Determine next slide
 				
-				var targetList = base.el+' li:eq('+loadSlide+')';
+				//var targetList = base.el+' li:eq('+loadSlide+')';
+				var targetList = base.$el.find('.slide-' + loadSlide);
 				
 				if (!$(targetList).html()){
 					// If links should open in new window
@@ -825,7 +748,7 @@
 		/* After Slide Animation
 		----------------------------*/
 		base.afterAnimation = function(){
-			
+
 			// If hybrid mode is on swap back to higher image quality
 			if (base.options.performance == 1){
 		    	base.$el.removeClass('speed').addClass('quality');
@@ -835,8 +758,7 @@
 			if (vars.update_images){
 				vars.current_slide - 1 < 0  ? setPrev = base.options.slides.length - 1 : setPrev = vars.current_slide-1;
 				vars.update_images = false;
-				$('.prevslide').removeClass('prevslide');
-				$(base.el+' li:eq('+setPrev+')').addClass('prevslide');
+				//$('.prevslide').removeClass('prevslide');
 			}
 			
 			vars.in_animation = false;
@@ -890,7 +812,7 @@
     
     	// Functionality
 		slideshow               :   1,			// Slideshow on/off
-		autoplay				:	1,			// Slideshow starts playing automatically
+		autoplay				:	0,			// Slideshow starts playing automatically
 		start_slide             :   1,			// Start slide (0 is random)
 		stop_loop				:	0,			// Stops slideshow on last slide
 		random					: 	0,			// Randomize slide order (Ignores start slide)
